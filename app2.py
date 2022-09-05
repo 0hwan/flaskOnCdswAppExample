@@ -48,18 +48,19 @@ async def get_book_name2(index: int, isbn: int) -> str:
           print(f"{isbn} : {index}:  nil")
           return "\{'isbn' : {isbn}, 'index' : {index}, 'title': ''\}"
 
-async def get_book_name(index: int, isbn: int) -> str:
+async def get_book_name(index: int, isbn: int):
     print(f"get_book_name......... aiohttp ")
     async with aiohttp.ClientSession() as session:
         async with session.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}") as response:
             response_dict = await response.json()
+            
             if response_dict["totalItems"] == 1:
                 title = response_dict["items"][0]["volumeInfo"]["title"]
                 print(f"{isbn} : {index}: {title} ")
-                return "\{'isbn' : {isbn}, 'index' : {index}, 'title': {title}\}"
+                return {'isbn': isbn, 'index': index, 'title': title}
             else:
                 print(f"{isbn} : {index}:  nil")
-                return "\{'isbn' : {isbn}, 'index' : {index}, 'title': ''\}"
+                return {'isbn': isbn, 'index': index, 'title': ''}
 
 
 async def async_test():
@@ -102,6 +103,8 @@ class HelloWorld(Resource):
     print("RESULT : %s " % result)
     # return jsonify({"result": result})
     end = time.perf_counter()
+    aa = (end - start)
+    print(f"message : Welcome, {name} start {start} - end {end}  {aa}!")
     # return {"message" : "Welcome, %s start %s - end %s  %s!" % (name, start, end, (end-start))}
     return result
     
