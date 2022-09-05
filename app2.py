@@ -1,5 +1,6 @@
 import asyncio
 import httpx
+import aiohttp
 import time
 from random import randint
 from flask import Flask, render_template, request
@@ -34,7 +35,7 @@ class Comic(Resource):
 
       return markup
 
-async def get_book_name(index: int, isbn: int) -> str:
+async def get_book_name2(index: int, isbn: int) -> str:
     async with httpx.AsyncClient() as client:
         response = await client.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}")
         response_dict = response.json()
@@ -46,6 +47,20 @@ async def get_book_name(index: int, isbn: int) -> str:
         else:
           print(f"{isbn} : {index}:  nil")
           return "\{'isbn' : {isbn}, 'index' : {index}, 'title': ''\}"
+
+async def get_book_name(index: int, isbn: int) -> str:
+    print(f"get_book_name......... aiohttp ")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}") as response:
+            response_dict = await response.json()
+            if response_dict["totalItems"] == 1:
+                title = response_dict["items"][0]["volumeInfo"]["title"]
+                print(f"{isbn} : {index}: {title} ")
+                return "\{'isbn' : {isbn}, 'index' : {index}, 'title': {title}\}"
+            else:
+                print(f"{isbn} : {index}:  nil")
+                return "\{'isbn' : {isbn}, 'index' : {index}, 'title': ''\}"
+
 
 async def async_test():
     isbn_list = [
