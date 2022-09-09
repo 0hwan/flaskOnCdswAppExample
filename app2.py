@@ -5,6 +5,7 @@ import time
 from random import randint
 from flask import Flask, render_template, request
 from flask_restx import Api, Resource
+from ssl
 
 app = Flask(__name__)
 api = Api(app)
@@ -84,7 +85,7 @@ async def async_test():
     
     task_list = []
     for index, isbn in enumerate(isbn_list):
-        task_list.append(get_book_name(index, isbn))
+        task_list.append(get_book_name2(index, isbn))
     out = await asyncio.gather(*task_list)
 
     return out
