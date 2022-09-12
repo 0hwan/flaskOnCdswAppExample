@@ -3,9 +3,12 @@ import httpx
 import aiohttp
 import time
 from random import randint
-from flask import Flask, render_template, request
+from flask import Flask, request
 from flask_restx import Api, Resource
-from ssl
+from auth import token_auth
+from functools import wraps
+
+import auth
 
 app = Flask(__name__)
 api = Api(app)
@@ -90,8 +93,21 @@ async def async_test():
 
     return out
 
+
+def check_login(func): 
+    @wraps(func) 
+    def wrapper(*args, **kwargs): 
+        print('jfsklajflsajl')
+        return 'you are not login' 
+    return wrapper 
+
+
 @api.route('/hello/<string:name>')
 class HelloWorld(Resource):
+  @api.response(200, 'Success')
+  @api.response(404, 'Validation Error')
+  @token_auth.authenticate
+  @api.response(401, 'unauthorized......')
   def get(self, name):
     # asyncio.run(async_test())
     # print(f"Inside flask function: {threading.current_thread().name}")
@@ -100,6 +116,11 @@ class HelloWorld(Resource):
     # loop = asyncio.get_event_loop()
     # result = loop.run_until_complete(async_test())
     result = asyncio.run(async_test())
+
+    
+    access_token = request.headers.get("Authorization")
+    print("ACCESS TOKEN : [%s]" % access_token)
+    print("ACCESS TOKEN : [%s]" % request.authorization)
     
     print("RESULT : %s " % result)
     # return jsonify({"result": result})
